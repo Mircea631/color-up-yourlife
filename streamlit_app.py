@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 import colorsys
 import mediapipe as mp
 
-st.set_page_config(page_title="Recunoaștere Nuanțe Ruj", layout="centered")
+st.set_page_config(page_title="Recunoaștere Nuanțe Make-UP", layout="centered")
 
 # Încarcă fișierul CSV cu rujuri
 lipstick_df = pd.read_csv("avon_lipsticks.csv")
