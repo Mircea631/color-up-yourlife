@@ -6,7 +6,6 @@ import pandas as pd
 from sklearn.cluster import KMeans
 import colorsys
 import mediapipe as mp
-from PIL import Image
 
 st.set_page_config(page_title="Recunoaștere Nuanțe Ruj", layout="centered")
 
@@ -107,9 +106,11 @@ if uploaded_file:
                 with col1:
                     st.image(np.full((50, 50, 3), color, dtype=np.uint8), use_column_width=True)
                 with col2:
-                    descriere = "**#{}** - Nuanță: `{}`  
-Ruj Avon: **{}**  
-Etichetă: _{}_".format(i+1, nuanta, ruj['name'], ruj['label'])
-                    st.markdown(descriere)
+                    line1 = "**#{}** - Nuanță: `{}`".format(i+1, nuanta)
+                    line2 = "Ruj Avon: **{}**".format(ruj['name'])
+                    line3 = "Etichetă: _{}_" .format(ruj['label'])
+                    st.markdown(line1)
+                    st.markdown(line2)
+                    st.markdown(line3)
     else:
         st.error("❌ Față nu detectată în imagine.")
