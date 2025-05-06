@@ -68,7 +68,7 @@ if uploaded_file:
     image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
     img_height, img_width, _ = image_rgb.shape
 
-    st.image(image_rgb, caption="Imagine încărcată", use_column_width=True)
+    st.image(image_rgb, caption="Imagine încărcată", use_container_width=True)
 
     results = face_mesh.process(image_rgb)
 
@@ -104,7 +104,7 @@ if uploaded_file:
 
                 col1, col2 = st.columns([1, 4])
                 with col1:
-                    st.image(np.full((50, 50, 3), color, dtype=np.uint8), use_column_width=True)
+                    st.image(np.full((50, 50, 3), color, dtype=np.uint8), use_container_width=True)
                 with col2:
                     line1 = "**#{}** - Nuanță: `{}`".format(i+1, nuanta)
                     line2 = "Ruj Avon: **{}**".format(ruj['name'])
