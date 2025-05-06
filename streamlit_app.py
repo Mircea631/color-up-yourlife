@@ -1,4 +1,8 @@
+# Îmbunătățim interfața: titluri mai clare, delimitare între nuanțe, stilizare cu HTML și culori
 
+streamlit_app_path = "/mnt/data/streamlit_app.py"
+
+improved_ui_code = '''
 import streamlit as st
 import cv2
 import numpy as np
@@ -7,7 +11,7 @@ from sklearn.cluster import KMeans
 import colorsys
 import mediapipe as mp
 
-st.set_page_config(page_title="Recunoaștere Nuanțe Make-UP", layout="centered")
+st.set_page_config(page_title="💄 Detectare Nuanțe Ruj", layout="centered")
 
 # Încarcă fișierul CSV cu rujuri
 lipstick_df = pd.read_csv("avon_lipsticks.csv")
@@ -57,10 +61,12 @@ def classify_lip_color(rgb):
 
 # Inițializare mediapipe
 mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True)
+face_mesh = mp.solutions.face_mesh.FaceMesh(static_image_mode=True)
 
-st.title("💄 Detectare Nuanțe MAKE_UP - Avon")
-uploaded_file = st.file_uploader("Încarcă o imagine JPG sau PNG", type=["jpg", "jpeg", "png"])
+st.markdown("<h1 style='text-align: center; color: #d63384;'>💄 Detecție automată a nuanțelor de ruj</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Încarcă o fotografie cu buze machiate și identificăm cele mai apropiate nuanțe Avon.</p>", unsafe_allow_html=True)
+
+uploaded_file = st.file_uploader("📤 Încarcă o imagine JPG sau PNG", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
@@ -68,7 +74,7 @@ if uploaded_file:
     image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
     img_height, img_width, _ = image_rgb.shape
 
-    st.image(image_rgb, caption="Imagine încărcată", use_container_width=True)
+    st.image(image_rgb, caption="📸 Imagine încărcată", use_container_width=True)
 
     results = face_mesh.process(image_rgb)
 
@@ -80,6 +86,9 @@ if uploaded_file:
     ]
 
     if results.multi_face_landmarks:
+        st.markdown("---")
+        st.subheader("🔍 Nuanțele detectate în zona buzelor:")
+
         for face_landmarks in results.multi_face_landmarks:
             lips_points = []
             for idx in lips_indices:
@@ -97,20 +106,26 @@ if uploaded_file:
             kmeans.fit(pixels)
             colors = kmeans.cluster_centers_.astype(int)
 
-            st.subheader("🔍 Nuanțe detectate:")
             for i, color in enumerate(colors):
                 nuanta = classify_lip_color(color)
                 ruj = find_closest_avon_lipstick(color)
 
+                st.markdown(f"<h4 style='color:#6f42c1;'>🎨 Nuanță #{i+1}</h4>", unsafe_allow_html=True)
                 col1, col2 = st.columns([1, 4])
                 with col1:
-                    st.image(np.full((50, 50, 3), color, dtype=np.uint8), use_container_width=True)
+                    st.image(np.full((60, 60, 3), color, dtype=np.uint8), use_container_width=True)
                 with col2:
-                    line1 = "**#{}** - Nuanță: `{}`".format(i+1, nuanta)
-                    line2 = "Ruj Avon: **{}**".format(ruj['name'])
-                    line3 = "Etichetă: _{}_" .format(ruj['label'])
-                    st.markdown(line1)
-                    st.markdown(line2)
-                    st.markdown(line3)
+                    st.markdown(f"""
+                    <b>Nuanță estimată:</b> <span style='color:#dc3545'>{nuanta}</span><br>
+                    <b>Ruj Avon:</b> <i>{ruj['name']}</i><br>
+                    <b>Etichetă:</b> {ruj['label']}
+                    """, unsafe_allow_html=True)
+                st.markdown("---")
     else:
-        st.error("❌ Față nu detectată în imagine.")
+        st.warning("⚠️ Fața nu a fost detectată în imagine.")
+'''
+
+with open(streamlit_app_path, "w") as f:
+    f.write(improved_ui_code)
+
+streamlit_app_path
