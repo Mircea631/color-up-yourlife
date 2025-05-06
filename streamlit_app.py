@@ -107,12 +107,9 @@ if uploaded_file:
                 with col1:
                     st.image(np.full((50, 50, 3), color, dtype=np.uint8), use_column_width=True)
                 with col2:
-                    st.markdown(
-                        f"**#{i+1}** - Nuanță: `{nuanta}`  
-"
-                        f"Ruj Avon: **{ruj['name']}**  
-"
-                        f"Etichetă: _{ruj['label']}_"
-                    )
+                    descriere = f"**#{i+1}** - Nuanță: `{nuanta}`  
+Ruj Avon: **{ruj['name']}**  
+Etichetă: _{ruj['label']}_"
+                    st.markdown(descriere)
     else:
         st.error("❌ Față nu detectată în imagine.")
