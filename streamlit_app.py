@@ -59,7 +59,7 @@ def classify_lip_color(rgb):
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(static_image_mode=True)
 
-st.title("💄 Detectare Nuanțe Ruj - Avon")
+st.title("💄 Detectare Nuanțe MAKE_UP - Avon")
 uploaded_file = st.file_uploader("Încarcă o imagine JPG sau PNG", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
