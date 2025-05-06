@@ -1,8 +1,4 @@
-# Îmbunătățim interfața: titluri mai clare, delimitare între nuanțe, stilizare cu HTML și culori
 
-streamlit_app_path = "/mnt/data/streamlit_app.py"
-
-improved_ui_code = '''
 import streamlit as st
 import cv2
 import numpy as np
@@ -123,9 +119,3 @@ if uploaded_file:
                 st.markdown("---")
     else:
         st.warning("⚠️ Fața nu a fost detectată în imagine.")
-'''
-
-with open(streamlit_app_path, "w") as f:
-    f.write(improved_ui_code)
-
-streamlit_app_path
