@@ -9,7 +9,6 @@ import mediapipe as mp
 
 st.set_page_config(page_title="💄 Detectare Nuanțe Ruj", layout="centered")
 
-# Încarcă fișierul CSV cu rujuri
 lipstick_df = pd.read_csv("avon_lipsticks.csv")
 
 def hex_to_rgb(hex_color):
@@ -55,67 +54,67 @@ def classify_lip_color(rgb):
     else:
         return "neclasificat"
 
-# Inițializare mediapipe
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp.solutions.face_mesh.FaceMesh(static_image_mode=True)
 
-st.markdown("<h1 style='text-align: center; color: #d63384;'>💄 Detecție automată a nuanțelor MakeUp</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Încarcă o fotografie cu buze machiate și identificăm cele mai apropiate nuanțe Avon.</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #d63384;'>💄 Detecție automată a nuanțelor de ruj</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Încarcă una sau mai multe imagini pentru a detecta nuanțele de ruj și sugestiile de la Avon.</p>", unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader("📤 Încarcă o imagine JPG sau PNG", type=["jpg", "jpeg", "png"])
+uploaded_files = st.file_uploader("📤 Încarcă imagini JPG sau PNG", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
-if uploaded_file:
-    file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
-    image_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
-    image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
-    img_height, img_width, _ = image_rgb.shape
+if uploaded_files:
+    for uploaded_file in uploaded_files:
+        file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+        image_bgr = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+        img_height, img_width, _ = image_rgb.shape
 
-    st.image(image_rgb, caption="📸 Imagine încărcată", use_container_width=True)
+        st.image(image_rgb, caption=f"📸 {uploaded_file.name}", use_container_width=True)
 
-    results = face_mesh.process(image_rgb)
+        results = face_mesh.process(image_rgb)
 
-    lips_indices = [
-        61, 146, 91, 181, 84, 17, 314, 405, 321, 375,
-        291, 308, 324, 318, 402, 317, 14, 87, 178, 88,
-        95, 185, 40, 39, 37, 0, 267, 269, 270, 409,
-        415, 310, 311, 312, 13, 82, 81, 42, 183, 78
-    ]
+        lips_indices = [
+            61, 146, 91, 181, 84, 17, 314, 405, 321, 375,
+            291, 308, 324, 318, 402, 317, 14, 87, 178, 88,
+            95, 185, 40, 39, 37, 0, 267, 269, 270, 409,
+            415, 310, 311, 312, 13, 82, 81, 42, 183, 78
+        ]
 
-    if results.multi_face_landmarks:
-        st.markdown("---")
-        st.subheader("🔍 Nuanțele detectate în zona buzelor:")
+        if results.multi_face_landmarks:
+            st.markdown("---")
+            st.subheader("🔍 Nuanțele detectate în zona buzelor:")
 
-        for face_landmarks in results.multi_face_landmarks:
-            lips_points = []
-            for idx in lips_indices:
-                x = int(face_landmarks.landmark[idx].x * img_width)
-                y = int(face_landmarks.landmark[idx].y * img_height)
-                lips_points.append((x, y))
+            for face_landmarks in results.multi_face_landmarks:
+                lips_points = []
+                for idx in lips_indices:
+                    x = int(face_landmarks.landmark[idx].x * img_width)
+                    y = int(face_landmarks.landmark[idx].y * img_height)
+                    lips_points.append((x, y))
 
-            mask = np.zeros(image_rgb.shape[:2], dtype=np.uint8)
-            cv2.fillPoly(mask, [np.array(lips_points, dtype=np.int32)], 255)
+                mask = np.zeros(image_rgb.shape[:2], dtype=np.uint8)
+                cv2.fillPoly(mask, [np.array(lips_points, dtype=np.int32)], 255)
 
-            lips_area = cv2.bitwise_and(image_rgb, image_rgb, mask=mask)
-            pixels = lips_area[mask == 255].reshape(-1, 3)
+                lips_area = cv2.bitwise_and(image_rgb, image_rgb, mask=mask)
+                pixels = lips_area[mask == 255].reshape(-1, 3)
 
-            kmeans = KMeans(n_clusters=3)
-            kmeans.fit(pixels)
-            colors = kmeans.cluster_centers_.astype(int)
+                kmeans = KMeans(n_clusters=3)
+                kmeans.fit(pixels)
+                colors = kmeans.cluster_centers_.astype(int)
 
-            for i, color in enumerate(colors):
-                nuanta = classify_lip_color(color)
-                ruj = find_closest_avon_lipstick(color)
+                for i, color in enumerate(colors):
+                    nuanta = classify_lip_color(color)
+                    ruj = find_closest_avon_lipstick(color)
 
-                st.markdown(f"<h4 style='color:#6f42c1;'>🎨 Nuanță #{i+1}</h4>", unsafe_allow_html=True)
-                col1, col2 = st.columns([1, 4])
-                with col1:
-                    st.image(np.full((60, 60, 3), color, dtype=np.uint8), use_container_width=True)
-                with col2:
-                    st.markdown(f"""
-                    <b>Nuanță estimată:</b> <span style='color:#dc3545'>{nuanta}</span><br>
-                    <b>Ruj Avon:</b> <i>{ruj['name']}</i><br>
-                    <b>Etichetă:</b> {ruj['label']}
-                    """, unsafe_allow_html=True)
-                st.markdown("---")
-    else:
-        st.warning("⚠️ Fața nu a fost detectată în imagine.")
+                    st.markdown(f"<h4 style='color:#6f42c1;'>🎨 Nuanță #{i+1}</h4>", unsafe_allow_html=True)
+                    col1, col2 = st.columns([1, 4])
+                    with col1:
+                        st.image(np.full((60, 60, 3), color, dtype=np.uint8), use_container_width=True)
+                    with col2:
+                        st.markdown(f"""
+                        <b>Nuanță estimată:</b> <span style='color:#dc3545'>{nuanta}</span><br>
+                        <b>Ruj Avon:</b> <i>{ruj['name']}</i><br>
+                        <b>Etichetă:</b> {ruj['label']}
+                        """, unsafe_allow_html=True)
+                    st.markdown("---")
+        else:
+            st.warning(f"⚠️ Fața nu a fost detectată în imaginea {uploaded_file.name}.")
