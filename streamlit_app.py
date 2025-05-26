@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 import colorsys
 import mediapipe as mp
 
-st.set_page_config(page_title="💄 Detectare Nuanțe Ruj", layout="centered")
+st.set_page_config(page_title="💄 Detectare Nuanțe Lipstick", layout="centered")
 
 lipstick_df = pd.read_csv("avon_lipsticks.csv")
 
