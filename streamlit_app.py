@@ -57,7 +57,7 @@ def classify_lip_color(rgb):
 mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp.solutions.face_mesh.FaceMesh(static_image_mode=True)
 
-st.markdown("<h1 style='text-align: center; color: #d63384;'>💄 Detecție automată a nuanțelor zona faciala</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #d63384;'>💄 Detecție automată a nuanțelor de ruj</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center;'>Încarcă una sau mai multe imagini pentru a detecta nuanțele lipstick-urilor și sugestiile de la Avon.</p>", unsafe_allow_html=True)
 
 uploaded_files = st.file_uploader("📤 Încarcă imagini JPG sau PNG", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
